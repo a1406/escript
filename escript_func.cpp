@@ -126,263 +126,220 @@ uint64_t lt_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-	
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	
-	uint64_t value1 = get_value(&e->param[0]);
-	if (script_pause)
-		return (0);
-	
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-		return (0);
-
-	if (value1 < value2)
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		e->pass_index = 2;
-		return 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;
+		case 1:
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;			
+			break;
 	}
-	e->pass_index = 1;	
+	if (e->value[1] < e->value[2])
+		return 1;
 	return (0);
 }
 uint64_t le_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (script_pause)
-		return (0);
-	
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-		return (0);
-
-	if (value1 <= value2)
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		e->pass_index = 2;
-		return 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;			
+			break;
 	}
-
-	e->pass_index = 1;	
+	if (e->value[1] <= e->value[2])
+		return 1;
 	return (0);
 }
 uint64_t gt_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (script_pause)
-		return (0);
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-		return (0);
-
-	if (value1 > value2)
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		e->pass_index = 2;
-		return 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;			
+			break;
 	}
-
-	e->pass_index = 1;
-	return (0);
+	if (e->value[1] > e->value[2])
+		return 1;
+	return (0);	
 }
 uint64_t ge_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (script_pause)
-		return (0);
-	
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-		return (0);
-
-	if (value1 >= value2)
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		e->pass_index = 2;
-		return 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;			
+			break;
 	}
-	
-	e->pass_index = 1;
+	if (e->value[1] >= e->value[2])
+		return 1;
 	return (0);
 }
 uint64_t eq_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (script_pause)
-		return (0);
-
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-		return (0);
-
-	if (value1 == value2)
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		e->pass_index = 2;
-		return 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;			
+			break;
 	}
-
-	e->pass_index = 1;
+	if (e->value[1] == e->value[2])
+		return 1;
 	return (0);
 }
 
 uint64_t and_func(struct expr_struct *e)
 {
 //pass_index:
-// 0：还未执行完第一步
-// 1: 第一步执行完，该执行第二步
-// 2: 都执行完了, 返回0
-// 3: 都执行完了，返回1	
-	
-	if (e->pass_index >= 2)
-		return (e->pass_index - 2);
-
-	if (e->pass_index == 0)
+// 0：还未执行
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		uint64_t value1 = get_value(&e->param[0]);
-		if (script_pause)
-		{
-			e->pass_index = 0;
-			return (0);
-		}
-	
-		if (!value1)
-		{
-			e->pass_index = 2;			
-			return (0);
-		}
-		e->pass_index = 1;					
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			if (!e->value[1])
+				return 0;
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;
+			break;
 	}
-
-	assert(e->pass_index == 1);
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-	{
-		return (0);
-	}
-
-	e->pass_index = value2 + 2;
-	return value2;
+	if (e->value[1] && e->value[1])
+		return 1;
+	return (0);
 }
 
 uint64_t or_func(struct expr_struct *e)
 {
 //pass_index:
-// 0：还未执行完第一步
-// 1: 第一步执行完，该执行第二步
-// 2: 都执行完了, 返回0
-// 3: 都执行完了，返回1	
-	
-	if (e->pass_index >= 2)
-		return (e->pass_index - 2);
-
-	if (e->pass_index == 0)
+// 0：还未执行
+// 1: value1已出
+// 2: value2已出
+	switch (e->pass_index)
 	{
-		uint64_t value1 = get_value(&e->param[0]);
-		if (script_pause)
-		{
-			e->pass_index = 0;
-			return (0);
-		}	
-		if (value1)
-		{
-			e->pass_index = value1 + 2;		
-			return (value1);
-		}
-		e->pass_index = 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+		case 1:
+			if (e->value[1])
+				return 1;
+			e->value[2] = get_value(&e->param[1]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 2;
+			break;
 	}
-
-	assert(e->pass_index == 1);
-	
-	uint64_t value2 = get_value(&e->param[1]);
-	if (script_pause)
-	{
-		return (0);
-	}
-	e->pass_index = value2 + 2;
-	return value2;
+	if (e->value[1] || e->value[1])
+		return 1;
+	return (0);
 }
 uint64_t not_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行
-// 1: 执行完，返回0
-// 2: 执行完，返回1	
-	if (e->pass_index > 0)
-		return (e->pass_index - 1);
-	
-	uint64_t value1 = !get_value(&e->param[0]);
-	if (!script_pause)
+// 1: value1已出
+
+	switch (e->pass_index)
 	{
-		e->pass_index = value1 + 1;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+			break;
 	}
-	return (value1);
+	if (e->value[1])
+		return 0;
+	return (1);
 }
 uint64_t if_func(struct expr_struct *e)
 {
 //pass_index:
 // 0：还未执行cond
-// 1: 执行完cond，执行if步骤
-// 2: 执行完cond，执行else步骤
-// 3: 执行完毕	
-
-	if (e->pass_index >= 3)
-		return (e->pass_index - 3);
-	uint64_t value1;
-
-	if (e->pass_index == 0)
+// 1: value1已出
+	switch (e->pass_index)
 	{
-		value1 = get_value(&e->param[0]);
-		if (script_pause)
-			return (0);
-	}
-	else if (e->pass_index == 1)
-	{
-		value1 = 1;
-	}
-	else
-	{
-		value1 = 0;
+		case 0:
+			e->value[1] = get_value(&e->param[0]);
+			if (script_pause)
+				return (0);
+			e->pass_index = 1;			
+			break;
 	}
 
 	uint64_t ret;
-	if (value1)
+	if (e->value[1])
 	{
-		e->pass_index = 1;
 		ret = call_func(&e->param[1]);
 	}
 	else
 	{
-		e->pass_index = 2;		
 		ret = call_func(&e->param[2]);		
 	}
-	if (script_pause)
-		return (0);
-	e->pass_index = ret + 3;
-	return ret;
+	return (0);
 }
 
 // uint64_t then_func(struct expr_struct *e)

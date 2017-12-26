@@ -48,6 +48,7 @@ struct expr_struct
 //	struct expr_struct *back_expr;  //规约到的expr
 	bool final;   //是否终结
 	int       pass_index;
+	uint64_t value[3];
 };
 
 typedef struct expr_struct *(*parse_func)(int argc, char *argv[], struct key_words_struct *keyword);
