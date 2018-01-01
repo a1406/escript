@@ -10,9 +10,6 @@ int debug_mode;
 struct expr_struct *parse_step(int argc, char *argv[], int pri_level);
 int do_back_expr();
 
-#define MAX_VARS 10
-uint64_t all_VARS[MAX_VARS];
-
 static int                 parse_index;
 //static struct expr_struct *last_back_expr;
 
@@ -23,6 +20,7 @@ struct expr_struct *create_expr(struct key_words_struct *keyword, bool final)
 //	ret->back_expr = last_back_expr;
 	ret->key = keyword;
 	ret->final = final;
+	ret->pass_index = 0;
 	if (keyword->param_num == 0)
 		ret->final = true;
 	return ret;
@@ -221,25 +219,27 @@ static struct key_words_struct keywords[MAX_KEY_WORDS] = {
     {"V2", v2_fun, false, 0, 1},
     {"V3", v3_fun, false, 0, 1},
 
-    {"=", comm_fun, true, 2, 30},
-    {"<", comm_fun, true, 2, 10},
-    {"<=", comm_fun, true, 2, 10},
-    {">", comm_fun, true, 2, 10},
-    {">=", comm_fun, true, 2, 10},
-    {"==", comm_fun, true, 2, 10},
-    {"and", comm_fun, true, 2, 20},
+    {"=", comm_fun, true, 2, 30, setq_func},
+    {"<", comm_fun, true, 2, 10, lt_func},
+    {"<=", comm_fun, true, 2, 10, le_func},
+    {">", comm_fun, true, 2, 10, gt_func},
+    {">=", comm_fun, true, 2, 10, ge_func},
+    {"==", comm_fun, true, 2, 10, eq_func},
+    {"and", comm_fun, true, 2, 20, and_func},
+    {"not", comm_fun, true, 1, 40, not_func},	
 
-    {"if", comm_fun, false, 3, 100},
-    {"then", then_fun, false, -1, 100},
-    {"else", else_fun, false, -1, 100},
-    {"endif", endif_fun, false, 0, 100},
+    {"if", comm_fun, false, 3, 100, if_func},
+    {"then", then_fun, false, -1, 100, then_func},
+    {"else", else_fun, false, -1, 100, else_func},
+    {"endif", endif_fun, false, 0, 100, endif_func},
 
-    {"gethp", comm_fun, false, 0, 1},
-    {"getmoney", comm_fun, false, 0, 1},
-    {"submoney", comm_fun, false, 1, 1},
-    {"addhp", comm_fun, false, 1, 1},	
+    {"gethp", comm_fun, false, 0, 1, gethp_func},
+    {"getmoney", comm_fun, false, 0, 1, getmoney_func},
+    {"submoney", comm_fun, false, 1, 1, submoney_func},
+    {"addhp", comm_fun, false, 1, 1, addhp_func},	
 
-    {"test2", comm_fun, false, 2, 1},	
+    {"test2", comm_fun, false, 2, 1, test2_func},
+	{"print", comm_fun, false, 1, 1, print_func},
 };
 
 static struct key_words_struct tmp_keyword = {"NUM", NULL, false, 1, 1};
