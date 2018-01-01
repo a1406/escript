@@ -229,8 +229,8 @@ static struct key_words_struct keywords[MAX_KEY_WORDS] = {
     {"not", comm_fun, true, 1, 40, not_func},	
 
     {"if", comm_fun, false, 3, 100, if_func},
-    {"then", then_fun, false, -1, 100, then_func},
-    {"else", else_fun, false, -1, 100, else_func},
+    {"then", then_fun, false, -1, 100, progn_func},
+    {"else", else_fun, false, -1, 100, progn_func},
     {"endif", endif_fun, false, 0, 100, endif_func},
 
     {"gethp", comm_fun, false, 0, 1, gethp_func},
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 
 	ret = get_last_expr(0);
     dump_expr(ret);
-    printf("\n");
+    printf("\n============================\n");
 
 	if (debug_mode)
 	{

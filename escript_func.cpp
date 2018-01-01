@@ -30,6 +30,29 @@ static uint64_t get_value(struct param_struct *param)
 	}
 }
 
+uint64_t progn_func(struct expr_struct *e)
+{
+	if (e->key->param_num != -1)
+	{
+		printf("%s %d failed\n", __FUNCTION__, __LINE__);				
+		return (0);
+	}
+	for (int i = 0; ; ++i)
+	{
+		if (i < e->pass_index)
+			continue;
+		switch (e->param[i].type)
+		{
+			case PARAM_TYPE_EXPR:
+				call_func(&e->param[i]);
+				break;
+			case PARAM_TYPE_END:
+				return (0);
+		}
+	}
+	return (0);
+}
+
 uint64_t setq_func(struct expr_struct *e)
 {
 	if (e->pass_index > 0)
@@ -46,6 +69,9 @@ uint64_t setq_func(struct expr_struct *e)
 
 uint64_t print_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	
 	uint64_t value = get_value(&e->param[0]);
 	printf("%lu\n", value);
 	return (0);
@@ -53,65 +79,130 @@ uint64_t print_func(struct expr_struct *e)
 
 uint64_t lt_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	
+	uint64_t value1 = get_value(&e->param[0]);
+	uint64_t value2 = get_value(&e->param[1]);
+	if (value1 < value2)
+		return 1;
 	return (0);
 }
 uint64_t le_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	uint64_t value2 = get_value(&e->param[1]);
+	if (value1 <= value2)
+		return 1;
+	
 	return (0);
 }
 uint64_t gt_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	uint64_t value2 = get_value(&e->param[1]);
+	if (value1 > value2)
+		return 1;
+	
 	return (0);
 }
 uint64_t ge_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	uint64_t value2 = get_value(&e->param[1]);
+	if (value1 >= value2)
+		return 1;
+	
 	return (0);
 }
 uint64_t eq_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	uint64_t value2 = get_value(&e->param[1]);
+	if (value1 == value2)
+		return 1;
+	
 	return (0);
 }
 uint64_t and_func(struct expr_struct *e)
 {
-	return (0);
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	if (!value1)
+		return (0);
+	uint64_t value2 = get_value(&e->param[1]);
+	return value2;
 }
 uint64_t not_func(struct expr_struct *e)
 {
-	return (0);
+	if (e->pass_index > 0)
+		return (0);
+	uint64_t value1 = get_value(&e->param[0]);
+	return (!value1);
 }
 uint64_t if_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t then_func(struct expr_struct *e)
 {
+	printf("%s %d failed\n", __FUNCTION__, __LINE__);			
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t else_func(struct expr_struct *e)
 {
+	printf("%s %d failed\n", __FUNCTION__, __LINE__);				
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t endif_func(struct expr_struct *e)
 {
+	printf("%s %d failed\n", __FUNCTION__, __LINE__);				
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t gethp_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t getmoney_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t submoney_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t addhp_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }
 uint64_t test2_func(struct expr_struct *e)
 {
+	if (e->pass_index > 0)
+		return (0);
 	return (0);
 }

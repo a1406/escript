@@ -79,4 +79,5 @@ uint64_t submoney_func(struct expr_struct *e);
 uint64_t addhp_func(struct expr_struct *e);
 uint64_t test2_func(struct expr_struct *e);
 uint64_t print_func(struct expr_struct *e);
+uint64_t progn_func(struct expr_struct *e);
 #endif /* ESCRIPT_H */
