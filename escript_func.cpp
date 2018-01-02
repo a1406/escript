@@ -1,5 +1,6 @@
 #include "escript.h"
 #include <sys/time.h>
+#include <assert.h>
 
 #define MAX_VARS 10
 uint64_t all_VARS[MAX_VARS];
@@ -80,6 +81,8 @@ uint64_t progn_func(struct expr_struct *e)
 		{
 			case PARAM_TYPE_EXPR:
 				call_func(&e->param[i]);
+				if (!script_pause)
+					++e->pass_index;
 				break;
 			case PARAM_TYPE_END:
 				return (0);
@@ -99,6 +102,8 @@ uint64_t setq_func(struct expr_struct *e)
 		return (0);
 	}
 	*v = get_value(&e->param[1]);
+	if (!script_pause)
+		++e->pass_index;
 	return (0);
 }
 
@@ -108,121 +113,292 @@ uint64_t print_func(struct expr_struct *e)
 		return (0);
 	
 	uint64_t value = get_value(&e->param[0]);
-	printf("%s %s: %lu\n", __FUNCTION__, e->key->name, value);
+	if (!script_pause)
+	{
+		++e->pass_index;
+		printf("%s %s: %lu\n", __FUNCTION__, e->key->name, value);
+	}
+	
 	return (0);
 }
 
 uint64_t lt_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
+	
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
 	
 	uint64_t value1 = get_value(&e->param[0]);
+	if (script_pause)
+		return (0);
+	
 	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+		return (0);
+
 	if (value1 < value2)
+	{
+		e->pass_index = 2;
 		return 1;
+	}
+	e->pass_index = 1;	
 	return (0);
 }
 uint64_t le_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
+
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
 	uint64_t value1 = get_value(&e->param[0]);
-	uint64_t value2 = get_value(&e->param[1]);
-	if (value1 <= value2)
-		return 1;
+	if (script_pause)
+		return (0);
 	
+	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+		return (0);
+
+	if (value1 <= value2)
+	{
+		e->pass_index = 2;
+		return 1;
+	}
+
+	e->pass_index = 1;	
 	return (0);
 }
 uint64_t gt_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
 	uint64_t value1 = get_value(&e->param[0]);
+	if (script_pause)
+		return (0);
 	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+		return (0);
+
 	if (value1 > value2)
+	{
+		e->pass_index = 2;
 		return 1;
-	
+	}
+
+	e->pass_index = 1;
 	return (0);
 }
 uint64_t ge_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
 	uint64_t value1 = get_value(&e->param[0]);
-	uint64_t value2 = get_value(&e->param[1]);
-	if (value1 >= value2)
-		return 1;
+	if (script_pause)
+		return (0);
 	
+	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+		return (0);
+
+	if (value1 >= value2)
+	{
+		e->pass_index = 2;
+		return 1;
+	}
+	
+	e->pass_index = 1;
 	return (0);
 }
 uint64_t eq_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
 	uint64_t value1 = get_value(&e->param[0]);
+	if (script_pause)
+		return (0);
+
 	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+		return (0);
+
 	if (value1 == value2)
+	{
+		e->pass_index = 2;
 		return 1;
-	
+	}
+
+	e->pass_index = 1;
 	return (0);
 }
+
 uint64_t and_func(struct expr_struct *e)
 {
-	if (e->pass_index > 0)
-		return (0);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (!value1)
-		return (0);
+//pass_index:
+// 0：还未执行完第一步
+// 1: 第一步执行完，该执行第二步
+// 2: 都执行完了, 返回0
+// 3: 都执行完了，返回1	
+	
+	if (e->pass_index >= 2)
+		return (e->pass_index - 2);
+
+	if (e->pass_index == 0)
+	{
+		uint64_t value1 = get_value(&e->param[0]);
+		if (script_pause)
+		{
+			e->pass_index = 0;
+			return (0);
+		}
+	
+		if (!value1)
+		{
+			e->pass_index = 2;			
+			return (0);
+		}
+		e->pass_index = 1;					
+	}
+
+	assert(e->pass_index == 1);
 	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+	{
+		return (0);
+	}
+
+	e->pass_index = value2 + 2;
 	return value2;
 }
+
 uint64_t or_func(struct expr_struct *e)
 {
-	if (e->pass_index > 0)
-		return (0);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (value1)
-		return (0);
+//pass_index:
+// 0：还未执行完第一步
+// 1: 第一步执行完，该执行第二步
+// 2: 都执行完了, 返回0
+// 3: 都执行完了，返回1	
+	
+	if (e->pass_index >= 2)
+		return (e->pass_index - 2);
+
+	if (e->pass_index == 0)
+	{
+		uint64_t value1 = get_value(&e->param[0]);
+		if (script_pause)
+		{
+			e->pass_index = 0;
+			return (0);
+		}	
+		if (value1)
+		{
+			e->pass_index = value1 + 2;		
+			return (value1);
+		}
+		e->pass_index = 1;
+	}
+
+	assert(e->pass_index == 1);
+	
 	uint64_t value2 = get_value(&e->param[1]);
+	if (script_pause)
+	{
+		return (0);
+	}
+	e->pass_index = value2 + 2;
 	return value2;
 }
 uint64_t not_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+// 1: 执行完，返回0
+// 2: 执行完，返回1	
 	if (e->pass_index > 0)
-		return (0);
-	uint64_t value1 = get_value(&e->param[0]);
-	return (!value1);
+		return (e->pass_index - 1);
+	
+	uint64_t value1 = !get_value(&e->param[0]);
+	if (!script_pause)
+	{
+		e->pass_index = value1 + 1;
+	}
+	return (value1);
 }
 uint64_t if_func(struct expr_struct *e)
 {
-		// TODO: 
-	if (e->pass_index > 0)
-		return (0);
-	uint64_t value1 = get_value(&e->param[0]);
-	if (value1)
+//pass_index:
+// 0：还未执行cond
+// 1: 执行完cond，执行if步骤
+// 2: 执行完cond，执行else步骤
+// 3: 执行完毕	
+
+	if (e->pass_index >= 3)
+		return (e->pass_index - 3);
+	uint64_t value1;
+
+	if (e->pass_index == 0)
 	{
-		return call_func(&e->param[1]);
+		value1 = get_value(&e->param[0]);
+		if (script_pause)
+			return (0);
+	}
+	else if (e->pass_index == 1)
+	{
+		value1 = 1;
 	}
 	else
 	{
-		return call_func(&e->param[2]);		
+		value1 = 0;
 	}
-}
-uint64_t then_func(struct expr_struct *e)
-{
-	printf("%s %d failed\n", __FUNCTION__, __LINE__);			
-	if (e->pass_index > 0)
+
+	uint64_t ret;
+	if (value1)
+	{
+		e->pass_index = 1;
+		ret = call_func(&e->param[1]);
+	}
+	else
+	{
+		e->pass_index = 2;		
+		ret = call_func(&e->param[2]);		
+	}
+	if (script_pause)
 		return (0);
-	return (0);
+	e->pass_index = ret + 3;
+	return ret;
 }
-uint64_t else_func(struct expr_struct *e)
-{
-	printf("%s %d failed\n", __FUNCTION__, __LINE__);				
-	if (e->pass_index > 0)
-		return (0);
-	return (0);
-}
+
+// uint64_t then_func(struct expr_struct *e)
+// {
+// 	printf("%s %d failed\n", __FUNCTION__, __LINE__);			
+// 	if (e->pass_index > 0)
+// 		return (0);
+// 	return (0);
+// }
+// uint64_t else_func(struct expr_struct *e)
+// {
+// 	printf("%s %d failed\n", __FUNCTION__, __LINE__);				
+// 	if (e->pass_index > 0)
+// 		return (0);
+// 	return (0);
+// }
 uint64_t endif_func(struct expr_struct *e)
 {
 	printf("%s %d failed\n", __FUNCTION__, __LINE__);				
@@ -232,47 +408,87 @@ uint64_t endif_func(struct expr_struct *e)
 }
 uint64_t gethp_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+
 	if (e->pass_index > 0)
-		return (0);
-	printf("RUN %s\n", __FUNCTION__);	
-	return (10);
+		return (e->pass_index - 1);
+
+	uint64_t ret = 10;
+	printf("RUN %s\n", __FUNCTION__);
+	e->pass_index = ret + 1;
+	return (ret);
 }
 uint64_t getmoney_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
+
+	uint64_t ret = 100;	
 	printf("RUN %s\n", __FUNCTION__);
-	return (100);
+	e->pass_index = ret + 1;	
+	return (ret);
 }
 uint64_t submoney_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
+	
+	uint64_t ret = 0;		
 	printf("RUN %s\n", __FUNCTION__);	
-	return (0);
+	e->pass_index = ret + 1;	
+	return (ret);
 }
 uint64_t addhp_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
+
+	uint64_t ret = 0;		
 	printf("RUN %s\n", __FUNCTION__);	
-	return (0);
+	e->pass_index = ret + 1;	
+	return (ret);
 }
 uint64_t test2_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
 	if (e->pass_index > 0)
-		return (0);
+		return (e->pass_index - 1);
+
+	uint64_t ret = 0;		
 	printf("RUN %s\n", __FUNCTION__);	
-	return (0);
+	e->pass_index = ret + 1;	
+	return (ret);
 }
 
 uint64_t v1_func(struct expr_struct *e)
 {
-	return get_value(&e->param[0]);
+//pass_index:
+// 0：还未执行
+	if (e->pass_index > 0)
+		return (e->pass_index - 1);
+
+	uint64_t ret = get_value(&e->param[0]);
+	if (script_pause)
+		return (0);
+	e->pass_index = ret + 1;		
+	return ret;
 }
 
 uint64_t sleep_func(struct expr_struct *e)
 {
+//pass_index:
+// 0：还未执行
+	if (e->pass_index > 0)
+		return (0);
+	
 	static uint64_t sleep_end_time = 0;
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
@@ -289,6 +505,7 @@ uint64_t sleep_func(struct expr_struct *e)
 		{
 			script_pause = 0;
 			sleep_end_time = 0;
+			e->pass_index = 1;
 		}
 		else
 		{
