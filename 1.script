@@ -1,4 +1,4 @@
 V1 = 10001
 print V1
-if V1 > 10000 then print 1111 sleep 3 print V1 else print 99999 endif
+if V1 > 10000 then V1 = 100 sleep 3 print V1 else print 99999 endif
 

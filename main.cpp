@@ -221,7 +221,7 @@ static struct key_words_struct keywords[MAX_KEY_WORDS] = {
     {"V2", v2_fun, false, 0, 1, v1_func},
     {"V3", v3_fun, false, 0, 1, v1_func},
 
-    {"=", comm_fun, true, 2, 30, setq_func},
+    {"=", comm_fun, true, 2, 1, setq_func},
     {"<", comm_fun, true, 2, 10, lt_func},
     {"<=", comm_fun, true, 2, 10, le_func},
     {">", comm_fun, true, 2, 10, gt_func},
