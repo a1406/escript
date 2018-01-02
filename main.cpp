@@ -1,11 +1,13 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <unistd.h>
 #include "escript.h"
 
 static char dump_buf[10240];
 static int dump_pos = 0;
 int debug_mode;
+int script_pause;
 
 struct expr_struct *parse_step(int argc, char *argv[], int pri_level);
 int do_back_expr();
@@ -241,6 +243,7 @@ static struct key_words_struct keywords[MAX_KEY_WORDS] = {
 
     {"test2", comm_fun, false, 2, 1, test2_func},
 	{"print", comm_fun, false, 1, 1, print_func},
+	{"sleep", comm_fun, false, 1, 1, sleep_func},
 };
 
 static struct key_words_struct tmp_keyword = {"NUM", NULL, false, 1, 1};
@@ -510,7 +513,22 @@ int main(int argc, char *argv[])
 			dump_expr(ret);
 			printf("\n============================\n");
 		}
-		ret->key->expr(ret);
+
+		script_pause = 0;
+
+		for (;;)
+		{
+			ret->key->expr(ret);
+			if (script_pause)
+			{
+				sleep(1);
+				printf("wake up\n");
+			}
+			else
+			{
+				break;
+			}
+		}
 		pop_expr_stack();
 	}
 

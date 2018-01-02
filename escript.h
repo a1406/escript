@@ -15,6 +15,7 @@ extern struct expr_struct *pop_expr_stack();
 extern struct expr_struct *get_last_expr(int index);
 extern char *dump_stack(char *dump_buf);
 extern int debug_mode;
+extern int script_pause;
 
 #define MAX_EXPR_PRI_LEVEL 9999999
 
@@ -81,6 +82,7 @@ uint64_t addhp_func(struct expr_struct *e);
 uint64_t test2_func(struct expr_struct *e);
 uint64_t print_func(struct expr_struct *e);
 uint64_t progn_func(struct expr_struct *e);
+uint64_t sleep_func(struct expr_struct *e);
 
 uint64_t v1_func(struct expr_struct *e);
 #endif /* ESCRIPT_H */

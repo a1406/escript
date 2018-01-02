@@ -1,4 +1,5 @@
 #include "escript.h"
+#include <sys/time.h>
 
 #define MAX_VARS 10
 uint64_t all_VARS[MAX_VARS];
@@ -270,3 +271,30 @@ uint64_t v1_func(struct expr_struct *e)
 	return get_value(&e->param[0]);
 }
 
+uint64_t sleep_func(struct expr_struct *e)
+{
+	static uint64_t sleep_end_time = 0;
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	if (sleep_end_time == 0)
+	{
+		uint64_t value = get_value(&e->param[0]);
+		sleep_end_time = (tv.tv_sec + value) * 1000000 + tv.tv_usec;
+		script_pause = 1;
+	}
+	else
+	{
+		uint64_t now = (tv.tv_sec) * 1000000 + tv.tv_usec;
+		if (now >= sleep_end_time)
+		{
+			script_pause = 0;
+			sleep_end_time = 0;
+		}
+		else
+		{
+			script_pause = 1;
+		}
+	}
+	
+	return (0);
+}
