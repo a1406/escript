@@ -68,6 +68,7 @@ uint64_t gt_func(struct expr_struct *e);
 uint64_t ge_func(struct expr_struct *e);
 uint64_t eq_func(struct expr_struct *e);
 uint64_t and_func(struct expr_struct *e);
+uint64_t or_func(struct expr_struct *e);
 uint64_t not_func(struct expr_struct *e);
 uint64_t if_func(struct expr_struct *e);
 uint64_t then_func(struct expr_struct *e);
@@ -80,4 +81,6 @@ uint64_t addhp_func(struct expr_struct *e);
 uint64_t test2_func(struct expr_struct *e);
 uint64_t print_func(struct expr_struct *e);
 uint64_t progn_func(struct expr_struct *e);
+
+uint64_t v1_func(struct expr_struct *e);
 #endif /* ESCRIPT_H */

@@ -136,7 +136,7 @@ struct expr_struct *endif_fun(int argc, char *argv[], struct key_words_struct *k
 	}
 	else
 	{
-		printf("%s: %d parse failed\n", __FUNCTION__, __LINE__);
+		printf("%s: %d parse failed, last = %s\n", __FUNCTION__, __LINE__, last->key->name);
 		exit(0);
 	}
 	
@@ -192,7 +192,7 @@ struct expr_struct *comm_fun(int argc, char *argv[], struct key_words_struct *ke
     if (keyword->use_left)
     {
 		struct expr_struct *left = pop_expr_stack();		
-        if (!left && !left->final)
+        if (!left || !left->final)
         {
             printf("%s: %d[%s] do not have left, wrong\n", __FUNCTION__, parse_index - 1, keyword->name);
             exit(0);
@@ -215,9 +215,9 @@ struct expr_struct *comm_fun(int argc, char *argv[], struct key_words_struct *ke
 
 #define MAX_KEY_WORDS 1000
 static struct key_words_struct keywords[MAX_KEY_WORDS] = {
-    {"V1", v1_fun, false, 0, 1},
-    {"V2", v2_fun, false, 0, 1},
-    {"V3", v3_fun, false, 0, 1},
+    {"V1", v1_fun, false, 0, 1, v1_func},
+    {"V2", v2_fun, false, 0, 1, v1_func},
+    {"V3", v3_fun, false, 0, 1, v1_func},
 
     {"=", comm_fun, true, 2, 30, setq_func},
     {"<", comm_fun, true, 2, 10, lt_func},
@@ -226,6 +226,7 @@ static struct key_words_struct keywords[MAX_KEY_WORDS] = {
     {">=", comm_fun, true, 2, 10, ge_func},
     {"==", comm_fun, true, 2, 10, eq_func},
     {"and", comm_fun, true, 2, 20, and_func},
+    {"or", comm_fun, true, 2, 20, or_func},	
     {"not", comm_fun, true, 1, 40, not_func},	
 
     {"if", comm_fun, false, 3, 100, if_func},
@@ -431,30 +432,109 @@ char *dump_expr_tobuff(struct expr_struct *expr, char *dump_buf, int *pos)
 	return dump_buf;
 }
 
+bool is_sep_char(char c)
+{
+	static char sep_char[] = {' ', '\n', '	'};
+	for (int i = 0; i < sizeof(sep_char); ++i)
+	{
+		if (c == sep_char[i])
+			return true;
+	}
+	return false;
+}
+
+int sperate_line(char *line, int *argc, char *argv[])
+{
+		//0: 单词开启, 等待空格
+		//1: 持续空格，等待单词
+	int state = 1;
+	
+	int j = 0;
+	for (int i = 0; ; ++i)
+	{
+		if (!line[i])
+			break;
+		if (state == 0)
+		{
+			if (!is_sep_char(line[i]))
+				continue;
+			line[i] = '\0';
+			state = 1;
+		}
+		else if (state == 1)
+		{
+			if (is_sep_char(line[i]))
+				continue;
+			state = 0;
+			argv[j++] = &line[i];
+		}
+	}
+	*argc = j;
+	return (0);
+}
+
 int main(int argc, char *argv[])
 {
-	for (int i = 1; i < argc; ++i)
-		printf("%s ", argv[i]);
-    printf("\n");
-
-	if (getenv("debug_mode"))
-		debug_mode = 1;
-	
-    parse_index             = 1;
-    struct expr_struct *ret = NULL;
-    while (parse_index < argc)
-		parse_step(argc, argv, MAX_EXPR_PRI_LEVEL);
-
-	do_back_expr();
-
-	ret = get_last_expr(0);
-    dump_expr(ret);
-    printf("\n============================\n");
-
-	if (debug_mode)
+	if (argc != 2)
 	{
-		printf("now dump stack\n");
-		printf(dump_stack(dump_buf));
+		printf("./main SCRIPE_FILE");
+		return (0);
 	}
+	FILE *fp = fopen(argv[1], "r");
+	if (!fp)
+	{
+		printf("open file %s failed\n", argv[1]);
+		return (0);
+	}
+	static char line[10240];
+	int t_argc;
+	char *t_argv[100];
+	while (fgets(line, 10240, fp))
+	{
+		if (sperate_line(line, &t_argc, &t_argv[1]) != 0)
+			continue;
+		++t_argc;
+		parse_index             = 1;
+		struct expr_struct *ret = NULL;
+		while (parse_index < t_argc)
+			parse_step(t_argc, t_argv, MAX_EXPR_PRI_LEVEL);
+
+		do_back_expr();
+
+		ret = get_last_expr(0);
+		if (!ret)
+			continue;
+		dump_expr(ret);
+		printf("\n============================\n");
+		ret->key->expr(ret);
+		pop_expr_stack();
+	}
+
+	fclose(fp);
+// for (int i = 1; i < argc; ++i)
+	// 	printf("%s ", argv[i]);
+    // printf("\n");
+
+	// if (getenv("debug_mode"))
+	// 	debug_mode = 1;
+
+    // parse_index             = 1;
+    // struct expr_struct *ret = NULL;
+    // while (parse_index < argc)
+	// 	parse_step(argc, argv, MAX_EXPR_PRI_LEVEL);
+
+	// do_back_expr();
+
+	// ret = get_last_expr(0);
+    // dump_expr(ret);
+    // printf("\n============================\n");
+
+	// ret->key->expr(ret);
+	
+	// if (debug_mode)
+	// {
+	// 	printf("now dump stack\n");
+	// 	printf(dump_stack(dump_buf));
+	// }
     return 0;
 }
