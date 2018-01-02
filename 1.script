@@ -1,3 +1,4 @@
-V1 = 10023
+V1 = 100
 print V1
+if V1 > 10000 then print 1111 else print V1 endif
 

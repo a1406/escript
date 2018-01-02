@@ -1,5 +1,5 @@
 #!/bin/bash
-./main  "1.script"
+./main  "1.script" aa
 #./main "if" "gethp" "then" "getmoney" "gethp" "gethp" "V1" "=" "3" "print" "V1" "else" "gethp" "endif"
 #./main "if" "gethp" "then" "getmoney" "gethp" "gethp" "V1" "=" "3"  "endif"
 

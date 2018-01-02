@@ -475,7 +475,7 @@ int sperate_line(char *line, int *argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc < 2)
 	{
 		printf("./main SCRIPE_FILE");
 		return (0);
@@ -504,8 +504,12 @@ int main(int argc, char *argv[])
 		ret = get_last_expr(0);
 		if (!ret)
 			continue;
-		dump_expr(ret);
-		printf("\n============================\n");
+
+		if (argc == 2)
+		{
+			dump_expr(ret);
+			printf("\n============================\n");
+		}
 		ret->key->expr(ret);
 		pop_expr_stack();
 	}
